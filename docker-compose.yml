@@ -41,10 +41,9 @@ services:
       - docker/bot-rocketchat.env
     ports:
       - 5002:5002
-    depends_on:
-      - actions
     volumes:
       - ./bot:/bot
+      - ./models:/models/
       - ./scripts:/scripts
 
   # =============================== Analytics =================================
@@ -156,6 +155,16 @@ services:
       - 8888:8888
     depends_on:
       - coach
+
+  tais:
+    image: lappis/bot:latest
+    restart: unless-stopped
+    command: make run-api
+    env_file:
+      - docker/bot.env
+    ports:
+      - 5006:5005
+      - 5003:5002
   
 volumes:
   notebook_models:
