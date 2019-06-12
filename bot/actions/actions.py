@@ -1,7 +1,7 @@
 from rasa_core_sdk import Action
-import requests
 import json
 import logging
+from .api_helper import get_request, post_request
 
 logger = logging.getLogger(__name__)
 
@@ -30,10 +30,9 @@ class ActionFallback(Action):
     def send_message(self, dispatcher, tracker, text):
         payload = {'query': text}
         payload = json.dumps(payload)
-        header = {"content-type": "application/json"}
 
-        r = requests.post("http://tais:5005/conversations/default/respond",
-                          data=payload, headers=header)
+        r = post_request(payload, "http://" + bot_url + "/conversations/default/respond")
+        messages = []
 
         for i in range(0, len(r.json())):
             dispatcher.utter_message(r.json()[i]['text'])
@@ -41,11 +40,8 @@ class ActionFallback(Action):
     def get_message_tracker(self, dispatcher, tracker, text):
         payload = {'query': text}
         payload = json.dumps(payload)
-        header = {"content-type": "application/json"}
 
-        r = requests.get("http://tais:5005/conversations/default/tracker",
-                         data=payload, headers=header)
-        r = r.json()
+        r = get_request(payload, "http://" + bot_url + "/conversations/default/tracker")
         for event in r['events']:
             if 'parse_data' in event:
                 logger.warning(event['text'])
