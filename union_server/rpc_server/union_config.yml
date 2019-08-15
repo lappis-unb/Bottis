@@ -1,0 +1,17 @@
+boilerplate:
+  ask_to:
+    - all
+  url:
+    - boilerplate:5005
+
+tais:
+  ask_to:
+    - all
+  url:
+    - tais:5005
+
+lappisudo:
+  ask_to:
+    - all
+  url:
+    - lappisudo:5005
