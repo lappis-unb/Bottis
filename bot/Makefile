@@ -9,7 +9,7 @@ config-rocket:
 	python /scripts/bot_config.py
 
 run-console:
-	python3 -m rasa_core.run -d /models/dialogue -u /models/nlu/current --debug
+	python3 -m rasa_core.run -d /models/dialogue -u /models/nlu/current --debug --enable_api --endpoints endpoints.yml
 
 run-console-broker:
 	python3 -m rasa_core.run -d /models/dialogue -u /models/nlu/current --debug --endpoints endpoints.yml
