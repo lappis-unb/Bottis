@@ -37,6 +37,8 @@ services:
       dockerfile: ./docker/bot.Dockerfile
     restart: unless-stopped
     command: make run-console
+    depends_on:
+      - actions
     env_file:
       - docker/bot-rocketchat.env
     ports:
@@ -135,6 +137,10 @@ services:
       - 5055:5055
     environment:
       - BOTS=localhost:5006;localhost:5007
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+      - BROKER_URL=rabbitmq
+      - BOT_NAME=boilerplate
     volumes:
       - ./bot/actions:/bot/actions
       - ./bot/Makefile:/bot/Makefile
@@ -166,7 +172,34 @@ services:
     ports:
       - 5006:5005
       - 5003:5002
-  
+
+  union_server:
+    container_name: rpc_server
+    build:
+      context: .
+      dockerfile: ./docker/union_server/Dockerfile
+    volumes:
+      - ./union_server:/opt
+    environment:
+      - BROKER_URL=rabbitmq
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    depends_on:
+      - rabbitmq
+    command: sh -c "python3 rpc_server.py"
+
+  lappisudo:
+    image: lappis/bot:lappisudo
+    command: make run-api
+    env_file:
+      - docker/bot.env
+    ports:
+      - 5007:5005
+      - 5004:5002
+    volumes:
+      - ./bot:/bot
+      - ./scripts:/scripts
+
 volumes:
   notebook_models:
   esbackup:
