@@ -35,6 +35,7 @@ class RPCServer():
 
     def get_best_answer(self, answers):
         # TODO: Fazer a hierarquia das policies, antes da confiança
+
         try:
             max_confidence = max([answer['total_confidence'] for answer in answers])
         except ValueError:
@@ -148,9 +149,9 @@ class RPCServer():
 
     def on_request(self, ch, method, props, body):
         bot_message = json.loads(body.decode('utf-8'))['bot_message']
-        bot_name = json.loads(body.decode('utf-8'))['bot_name']
+        self.bot_name = json.loads(body.decode('utf-8'))['bot_name']
 
-        answer = self.ask_bots(bot_message, bot_name)
+        answer = self.ask_bots(bot_message, self.bot_name)
 
         logger.warning(answer)
     
