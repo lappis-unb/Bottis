@@ -5,7 +5,7 @@ ADD ./bot/Makefile /bot/Makefile
 
 WORKDIR bot/
 
-RUN pip install --no-cache django-environ
+RUN pip install --no-cache django-environ pika==1.1.0
 EXPOSE 5055
 HEALTHCHECK --interval=300s --timeout=60s --retries=5 \
   CMD curl -f http://0.0.0.0:5055/health || exit 1
