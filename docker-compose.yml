@@ -191,8 +191,6 @@ services:
   lappisudo:
     image: lappis/bot:lappisudo
     command: make run-api
-    env_file:
-      - docker/bot.env
     ports:
       - 5007:5005
       - 5004:5002

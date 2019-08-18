@@ -46,6 +46,7 @@ class ActionFallback(Action):
     def on_response(self, ch, method, props, body):
         if self.corr_id == props.correlation_id:
             self.response = body
+            ch.basic_ack(delivery_tag = method.delivery_tag)
 
     def call(self, text):
         self.response = None
@@ -87,8 +88,7 @@ class ActionFallback(Action):
 
         self.channel.basic_consume(
             queue=self.callback_queue,
-            on_message_callback=self.on_response,
-            auto_ack=True)
+            on_message_callback=self.on_response)
 
     def run(self, dispatcher, tracker, domain):
         text = ''
