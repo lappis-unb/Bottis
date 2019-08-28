@@ -1,13 +1,9 @@
-# Rasa Boilerplate
+# Bottis
 <!-- badges -->
 <a href="https://www.gnu.org/licenses/gpl-3.0.pt-br.html"><img src="https://img.shields.io/badge/licence-GPL3-green.svg"/></a>
-<a href="https://codeclimate.com/github/lappis-unb/rasa-ptbr-boilerplate/maintainability"><img src="https://api.codeclimate.com/v1/badges/3fe22bf52000e147c6df/maintainability"/></a>
+<a href="https://codeclimate.com/github/codeclimate/codeclimate/maintainability"><img src="https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/maintainability" /></a>
 
 ### For English version, see [README-en](docs/README-en.md)
-
-Um projeto feito em Rasa com configurações necessárias para a construção de um projeto grande de chatbot.
-
-Este projeto teve como base a [Tais](http://github.com/lappis-unb/tais).
 
 # Entenda a Arquitetura
 
@@ -50,7 +46,7 @@ Condition: Visitor time on site
     Value: 3
 Action: Send Message
  Value: Impersonate next agent from queue
- Value: Olá!
+kjjfkjkf Value: Olá!
 ```
 
 O valor `http://localhost:8080/` deve ser a URL de acesso do Bot.
