@@ -78,12 +78,10 @@ build coach:
   services:
     - docker:dind
   script:
-    # - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD # Logs in to dockerhub
-    - docker login -u "gitlab-ci-token" -p "$CI_JOB_TOKEN" $CI_REGISTRY 
+    - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD # Logs in to dockerhub
     - docker pull $COACH_TEMP_IMAGE
     - docker tag $COACH_TEMP_IMAGE $COACH_IMAGE:latest
-    # - docker push $COACH_IMAGE:latest
-    - docker push $CI_REGISTRY_IMAGE/$COACH_IMAGE:latest
+    - docker push $COACH_IMAGE:latest
   only:
     - master
     - gitlabci
@@ -101,12 +99,10 @@ build bot:
   services:
     - docker:dind
   script:
-    # - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD # Logs in to dockerhub
-    - docker login -u "gitlab-ci-token" -p "$CI_JOB_TOKEN" $CI_REGISTRY
+    - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD # Logs in to dockerhub
     - docker pull $BOT_TEMP_IMAGE
     - docker tag $BOT_TEMP_IMAGE $BOT_IMAGE:latest
-    # - docker push $BOT_IMAGE:latest
-    - docker push $CI_REGISTRY_IMAGE/$BOT_IMAGE:latest
+    - docker push $BOT_IMAGE:latest
   only:
     - master
     - gitlabci
