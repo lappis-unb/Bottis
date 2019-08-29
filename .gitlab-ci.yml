@@ -61,7 +61,6 @@ build requirements:
   only:
     refs:
       - master
-      - gitlabci
     changes:
       - ./docker/bot/requirements.txt
   environment: homolog
@@ -84,7 +83,6 @@ build coach:
     - docker push $COACH_IMAGE:latest
   only:
     - master
-    - gitlabci
   environment: homolog
 
 
@@ -105,5 +103,4 @@ build bot:
     - docker push $BOT_IMAGE:latest
   only:
     - master
-    - gitlabci
   environment: homolog
