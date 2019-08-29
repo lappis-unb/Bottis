@@ -8,8 +8,8 @@ variables:
 
 stages:
   - test style
-  - test stories
   - build requirements
+  - test stories
   - build coach
   - build
 
@@ -57,8 +57,7 @@ build requirements:
     - docker:dind
   script:
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
-    - cd ./docker/bot
-    - ./build-base.sh publish
+    - ./docker/build-base.sh
   only:
     refs:
       - master
