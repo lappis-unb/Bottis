@@ -9,7 +9,7 @@ from typing import Optional, Any, Dict, List, Text
 
 from rasa_core import utils
 from rasa_core.domain import Domain
-from rasa_core.events import ActionExecuted
+from rasa_core.events import ActionExecuted, SlotSet
 from rasa_core.featurizers import (
     TrackerFeaturizer, MaxHistoryTrackerFeaturizer)
 from rasa_core.policies.policy import Policy
@@ -24,13 +24,13 @@ class BottisPolicy(Policy):
                  priority = 10,
                  nlu_threshold: float = 0.5,
                  core_threshold: float = 0.5,
-                 fallback_action_name: Text = "action_default_fallback",
+                 custom_response_action_name: Text = "action_custom_response",
                  featurizer: Optional[TrackerFeaturizer] = None,
                  max_history: Optional[int] = None,
                  lookup: Optional[Dict] = None
                  ) -> None:
 
-        self.fallback_action_name = fallback_action_name
+        self.custom_response_action_name = custom_response_action_name
         self.core_threshold = core_threshold
         self.nlu_threshold = nlu_threshold
         self.priority = priority
@@ -53,9 +53,6 @@ class BottisPolicy(Policy):
 
         Returns the list of probabilities for the next actions"""
 
-        raise NotImplementedError("Policy must have the capacity "
-                                  "to predict.")
-
         text = 'Test bolado'
         #text = tracker.latest_message.get('text')
 
@@ -64,7 +61,13 @@ class BottisPolicy(Policy):
 
         # TODO: Paralelizar o envio das mensagens para as APIs cadastradas
         # TODO: Configurar os dados que recebemos do tracker em uma struct separada
-        result = domain.num_actions
+
+        set_answer_slot_event = SlotSet("bot_answer", "Chegou na policy")
+        tracker.update(set_answer_slot_event)
+    
+        result = [0.0] * domain.num_actions
+        idx = domain.index_for_action(self.custom_response_action_name)
+        result[idx] = 1.0
 
         logger.warning("\n\n\n\n\nRESULTS\n\n\n\n\n")
         logger.warning(result)
@@ -79,7 +82,7 @@ class BottisPolicy(Policy):
         meta = {
                 "nlu_threshold": self.nlu_threshold,
                 "core_threshold": self.core_threshold,
-                "fallback_action_name": self.fallback_action_name
+                "custom_response_action_name": self.custom_response_action_name
                 }
         utils.create_dir_for_file(config_file)
         utils.dump_obj_as_json_to_file(config_file, meta)
