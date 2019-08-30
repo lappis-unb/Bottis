@@ -411,6 +411,11 @@ templates:
 
         Você está feliz hoje, hein!?
 
+slots:
+  bot_answer:
+    type: text
+    initial_value: "So sei que nada sei!"
+
 actions:
   - utter_default
   - utter_cumprimentar
@@ -445,3 +450,4 @@ actions:
   - utter_risada
 
   - action_test
+  - action_custom_response
