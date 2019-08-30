@@ -14,5 +14,5 @@ policies:
   - name: MemoizationPolicy
     priority: 2
     max_history: 2
-    
-
+  - name: "policies.bottis_policy.BottisPolicy"
+    priority: 10
