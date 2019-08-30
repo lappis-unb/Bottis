@@ -67,7 +67,7 @@ class BottisPolicy(Policy):
     
         result = [0.0] * domain.num_actions
         idx = domain.index_for_action(self.custom_response_action_name)
-        result[idx] = 1.0
+        result[idx] = 1.2
 
         logger.warning("\n\n\n\n\nRESULTS\n\n\n\n\n")
         logger.warning(result)
