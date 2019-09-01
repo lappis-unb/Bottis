@@ -1,4 +1,5 @@
 from rasa_core_sdk import Action
+from rasa_core.events import SlotSet
 
 
 class ActionTest(Action):
@@ -16,8 +17,7 @@ class ActionCustomResponse(Action):
         return "action_custom_response"
 
     def run(self, dispatcher, tracker, domain):
-        text = tracker.get_slot('bot_answer')
+        messages = tracker.get_slot('bot_answers')
 
-        dispatcher.utter_message(text)
-
-        return [SlotSet('bot_answer', '')]
+        for message in messages:
+            dispatcher.utter_message(message)
