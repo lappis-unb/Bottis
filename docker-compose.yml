@@ -47,6 +47,30 @@ services:
       - ./bot:/bot
       - ./scripts:/scripts
 
+  tais:
+    image: lappis/bot:latest
+    container_name: tais
+    restart: unless-stopped
+    command: make run-api
+
+  lappisudo:
+    image: lappis/bot:lappisudo
+    container_name: tais
+    restart: unless-stopped
+    command: make run-api
+
+  defensoria:
+    image: lappis/bot:defensoria
+    container_name: tais
+    restart: unless-stopped
+    command: make run-api
+
+  aix:
+    image: lappis/bot:aix
+    container_name: tais
+    restart: unless-stopped
+    command: make run-api
+
   # =============================== Analytics =================================
   elasticsearch:
     build:
