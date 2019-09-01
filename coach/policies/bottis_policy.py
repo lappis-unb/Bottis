@@ -23,8 +23,8 @@ logger = logging.getLogger(__name__)
 class BottisPolicy(Policy):
     def __init__(self,
                  priority: int = 2,
-                 nlu_threshold: float = 0.5,
-                 core_threshold: float = 0.5,
+                 nlu_threshold: float = 0.7,
+                 core_threshold: float = 0.7,
                  custom_response_action_name: Text = "action_custom_response",
                  featurizer: Optional[TrackerFeaturizer] = None,
                  max_history: Optional[int] = None,
@@ -46,6 +46,12 @@ class BottisPolicy(Policy):
 
         logger.warning("Olaaaa, estou treinando genteee")
 
+    def bottis_score(self, result, domain, bottis_score=1.0):
+        idx = domain.index_for_action(self.custom_response_action_name)
+        result[idx] = self.core_threshold
+
+        return result
+
     def predict_action_probabilities(self,
                                      tracker: DialogueStateTracker,
                                      domain: Domain) -> List[float]:
@@ -54,7 +60,6 @@ class BottisPolicy(Policy):
 
         Returns the list of probabilities for the next actions"""
 
-        text = 'Test bolado'
         #text = tracker.latest_message.get('text')
 
         # TODO: Inserção das API's sem ser hardcode
@@ -62,23 +67,18 @@ class BottisPolicy(Policy):
 
         # TODO: Paralelizar o envio das mensagens para as APIs cadastradas
         # TODO: Configurar os dados que recebemos do tracker em uma struct separada
+        result = [0.0] * domain.num_actions
 
         if tracker.latest_action_name == self.custom_response_action_name:
             result = [0.0] * domain.num_actions
             idx = domain.index_for_action(ACTION_LISTEN_NAME)
             result[idx] = 1.0
-            logger.warning("\n\n\n\nENTROUUUUU NA LISTEN\n\n\n\n\n")
-            logger.warning("\n\n\n\nENTROUUUUU NA LISTEN\n\n\n\n\n")
-    
-        else:
+        elif tracker.latest_message.intent.get('name') == None and \
+             tracker.latest_message.intent.get('confidence') < self.nlu_threshold:
             set_answer_slot_event = SlotSet("bot_answer", "Chegou na policy")
             tracker.update(set_answer_slot_event)
-    
-            result = [0.0] * domain.num_actions
-            idx = domain.index_for_action(self.custom_response_action_name)
-            result[idx] = 1.0
-            logger.warning("\n\n\n\nENTROUUUUU NA CUSTOM\n\n\n\n\n")
-            logger.warning("\n\n\n\nENTROUUUUU NA CUSTOM\n\n\n\n\n")
+
+            result = self.bottis_score(result, domain, self.core_threshold)
 
         return result
 

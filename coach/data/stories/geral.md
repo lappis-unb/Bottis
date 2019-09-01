@@ -14,11 +14,7 @@
 
 ## Nao entendi
 * diga_mais
-    - utter_diga_mais  
-
-## fallback
-* out_of_scope
-    - utter_default
+    - utter_diga_mais
 
 ## negar sem contexto
 * negar
