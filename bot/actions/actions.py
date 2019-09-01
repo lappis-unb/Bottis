@@ -18,4 +18,6 @@ class ActionCustomResponse(Action):
     def run(self, dispatcher, tracker, domain):
         text = tracker.get_slot('bot_answer')
 
-        dispatcher.utter_attachment(str(text))
+        dispatcher.utter_message(text)
+
+        return [SlotSet('bot_answer', '')]
