@@ -14,6 +14,7 @@ from rasa_core.featurizers import (
     TrackerFeaturizer, MaxHistoryTrackerFeaturizer)
 from rasa_core.policies.policy import Policy
 from rasa_core.trackers import DialogueStateTracker
+from rasa_core.actions.action import ACTION_LISTEN_NAME
 
 
 logger = logging.getLogger(__name__)
@@ -21,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 class BottisPolicy(Policy):
     def __init__(self,
-                 priority = 10,
+                 priority: int = 2,
                  nlu_threshold: float = 0.5,
                  core_threshold: float = 0.5,
                  custom_response_action_name: Text = "action_custom_response",
@@ -34,7 +35,7 @@ class BottisPolicy(Policy):
         self.core_threshold = core_threshold
         self.nlu_threshold = nlu_threshold
         self.priority = priority
-        super(BottisPolicy, self).__init__(featurizer)
+        super(BottisPolicy, self).__init__(featurizer, priority)
 
     def train(self,
               training_trackers: List[DialogueStateTracker],
@@ -62,16 +63,22 @@ class BottisPolicy(Policy):
         # TODO: Paralelizar o envio das mensagens para as APIs cadastradas
         # TODO: Configurar os dados que recebemos do tracker em uma struct separada
 
-        set_answer_slot_event = SlotSet("bot_answer", "Chegou na policy")
-        tracker.update(set_answer_slot_event)
+        if tracker.latest_action_name == self.custom_response_action_name:
+            result = [0.0] * domain.num_actions
+            idx = domain.index_for_action(ACTION_LISTEN_NAME)
+            result[idx] = 1.0
+            logger.warning("\n\n\n\nENTROUUUUU NA LISTEN\n\n\n\n\n")
+            logger.warning("\n\n\n\nENTROUUUUU NA LISTEN\n\n\n\n\n")
     
-        result = [0.0] * domain.num_actions
-        idx = domain.index_for_action(self.custom_response_action_name)
-        result[idx] = 1.2
-
-        logger.warning("\n\n\n\n\nRESULTS\n\n\n\n\n")
-        logger.warning(result)
-        logger.warning("\n\n\n\n\nRESULTS\n\n\n\n\n")
+        else:
+            set_answer_slot_event = SlotSet("bot_answer", "Chegou na policy")
+            tracker.update(set_answer_slot_event)
+    
+            result = [0.0] * domain.num_actions
+            idx = domain.index_for_action(self.custom_response_action_name)
+            result[idx] = 1.0
+            logger.warning("\n\n\n\nENTROUUUUU NA CUSTOM\n\n\n\n\n")
+            logger.warning("\n\n\n\nENTROUUUUU NA CUSTOM\n\n\n\n\n")
 
         return result
 
@@ -80,6 +87,7 @@ class BottisPolicy(Policy):
     
         config_file = os.path.join(path, 'bottis_policy.json')
         meta = {
+                "priority": self.priority,
                 "nlu_threshold": self.nlu_threshold,
                 "core_threshold": self.core_threshold,
                 "custom_response_action_name": self.custom_response_action_name
