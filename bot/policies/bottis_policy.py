@@ -64,15 +64,17 @@ class BottisPolicy(Policy):
         bots = ['aix:5005', 'tais:5005', 'defensoria:5005', 'lappisudo:5005']
 
         # TODO: Paralelizar o envio das mensagens para as APIs cadastradas
-        # TODO: Configurar os dados que recebemos do tracker em uma struct separada
+        """ TODO: Configurar os dados que recebemos do
+        tracker em uma struct separada
+        """
         result = [0.0] * domain.num_actions
-
+        intent = tracker.latest_message.intent
         if tracker.latest_action_name == self.custom_response_action_name:
             result = [0.0] * domain.num_actions
             idx = domain.index_for_action(ACTION_LISTEN_NAME)
             result[idx] = 1.0
-        elif tracker.latest_message.intent.get('name') == None and \
-             tracker.latest_message.intent.get('confidence') < self.nlu_threshold:
+        elif (intent.get('name') is None and
+              intent.get('confidence') < self.nlu_threshold):
 
             text = tracker.latest_message.text or ''
 
@@ -96,7 +98,7 @@ class BottisPolicy(Policy):
 
     def persist(self, path: Text) -> None:
         """Persists the policy to storage."""
-    
+
         config_file = os.path.join(path, 'bottis_policy.json')
         meta = {
                 "priority": self.priority,
@@ -121,17 +123,24 @@ class BottisPolicy(Policy):
         # TODO: Fazer a hierarquia das policies, antes da confiança
         # fallback_threshold = self.fallback_threshold
         fallback_threshold = 0.5
-
-        valid_answers = filter(lambda x: x['intent_confidence'] >= fallback_threshold, answers)
+        valid_answers = filter(
+            lambda x: x['intent_confidence'] >= fallback_threshold,
+            answers
+            )
 
         try:
-            max_confidence = max([answer['total_confidence'] for answer in valid_answers])
+            max_confidence = max(
+                [answer['total_confidence'] for answer in valid_answers])
         except ValueError:
             # Empty answers
             max_confidence = 0
 
         if(valid_answers and max_confidence != 0):
-            best_answer = self.find_answer_by_confidence(answers, max_confidence)
+            best_answer =
+            self.find_answer_by_confidence(
+                answers,
+                max_confidence
+            )
         else:
             best_answer = main_bot_fallback()
 
@@ -153,14 +162,14 @@ class BottisPolicy(Policy):
                 info = self.get_answer_info(text, bot)
                 if "fallback" in info['policy_name'].lower():
                     continue
-
+                total_c = info['intent_confidence'] + info['utter_confidence']
                 bot_answer = {
                     "bot": bot,
                     "messages": messages,
                     "intent_name": info['intent_name'],
                     "intent_confidence": info['intent_confidence'],
                     "utter_confidence": info['utter_confidence'],
-                    "total_confidence": info['intent_confidence']+info['utter_confidence'],
+                    "total_confidence": total_c,
                     "policy_name": info['policy_name'],
                 }
                 answers.append(bot_answer)
@@ -171,12 +180,11 @@ class BottisPolicy(Policy):
 
         return answers
 
-
     def send_message(self, text, bot_url):
         payload = {'query': text}
         payload = json.dumps(payload)
-
-        r = post_request(payload, "http://" + bot_url + "/conversations/default/respond")
+        url = "http://" + bot_url + "/conversations/default/respond"
+        r = post_request(payload, url)
         messages = []
         for i in range(0, len(r)):
             messages.append(r[i]['text'])
@@ -186,18 +194,24 @@ class BottisPolicy(Policy):
         payload = {'query': message}
         payload = json.dumps(payload)
 
-        r = get_request(payload, "http://" + bot_url + "/conversations/default/tracker")
+        url = "http://" + bot_url + "/conversations/default/tracker"
+        r = get_request(payload, url)
         answer_info = {}
 
         iterator = iter(r['events'])
         for event in iterator:
             if 'event' in event and 'user' == event['event']:
                 if message == event['text']:
-                    answer_info['intent_confidence'] = event['parse_data']['intent']['confidence']
-                    answer_info['intent_name'] = event['parse_data']['intent']['name']
+                    confidence = event['parse_data']['intent']['confidence']
+                    name = event['parse_data']['intent']['name']
+                    answer_info['intent_confidence'] = confidence
+                    answer_info['intent_name'] = name
 
-                    # always after a user event, there is a action event with policy info.
-                    answer_info['utter_confidence'], answer_info['policy_name'] = self.get_policy_info(iterator)
+                    """We assumed the API returns after a user event,
+                    there will be an action event with policy info.
+                    """
+                    answer_info['utter_confidence'],
+                    answer_info['policy_name'] = self.get_policy_info(iterator)
 
                     break
 
@@ -219,15 +233,16 @@ class BottisPolicy(Policy):
 
 
 def main_bot_fallback():
-    return  {
+    return {
                 'bot': 'main-bot',
                 'total_confidence': 2,
                 'intent_confidence': 1,
                 'utter_confidence': 1,
                 'policy_name': 'Fallback',
                 'intent_name': 'fallback',
-                'messages':[
-                    "Desculpe, ainda não sei falar sobre isso ou talvez não consegui entender direito.",
+                'messages': [
+                    "Desculpe, ainda não sei falar sobre isso ou talvez não \
+                    consegui entender direito.",
                     "Você pode perguntar de novo de outro jeito?"
                 ]
             }
