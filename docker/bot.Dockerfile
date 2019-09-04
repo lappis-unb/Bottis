@@ -1,5 +1,5 @@
-FROM lappis/coach:boilerplate as coach
-FROM lappis/botrequirements:boilerplate
+FROM lappis/bottis:coach as coach
+FROM lappis/bottis:requirements
 
 
 COPY ./bot /bot

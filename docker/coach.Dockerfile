@@ -1,4 +1,4 @@
-FROM lappis/botrequirements:boilerplate
+FROM lappis/bottis:requirements
 
 COPY ./coach /coach
 COPY ./scripts /scripts
