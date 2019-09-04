@@ -16,6 +16,10 @@
 * diga_mais
     - utter_diga_mais
 
+## fallback
+* out_of_scope
+    - action_fallback
+
 ## negar sem contexto
 * negar
     - utter_despedir
