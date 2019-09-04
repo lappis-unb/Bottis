@@ -201,3 +201,5 @@ tags
 models/dialogue/
 
 models/nlu/current/
+
+\.vscode/
