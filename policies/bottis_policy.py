@@ -136,11 +136,10 @@ class BottisPolicy(Policy):
             max_confidence = 0
 
         if(valid_answers and max_confidence != 0):
-            best_answer =
-            self.find_answer_by_confidence(
-                answers,
-                max_confidence
-            )
+            best_answer = self.find_answer_by_confidence(
+                    answers,
+                    max_confidence
+                    )
         else:
             best_answer = main_bot_fallback()
 

@@ -46,6 +46,7 @@ services:
     volumes:
       - ./bot:/bot
       - ./scripts:/scripts
+      - ./policies:/bot/policies/
 
   tais:
     image: lappis/bot:latest
