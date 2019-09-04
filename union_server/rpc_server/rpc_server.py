@@ -35,18 +35,28 @@ class RPCServer():
 
     def get_best_answer(self, answers):
         # TODO: Fazer a hierarquia das policies, antes da confiança
+        # fallback_threshold = self.fallback_threshold
+        fallback_threshold = 0.5
+        valid_answers = filter(
+            lambda x: x['intent_confidence'] >= fallback_threshold,
+            answers
+            )
 
         try:
-            max_confidence = max([answer['total_confidence'] for answer in answers])
+            max_confidence = max(
+                [answer['total_confidence'] for answer in valid_answers])
         except ValueError:
             # Empty answers
             max_confidence = 0
 
-        # FIXME: use the value directly from policy_config.yml, smallest of the thresholds
-        if(max_confidence >= 0.6):
-            best_answer = self.find_answer_by_confidence(answers, max_confidence)
+        if(valid_answers and max_confidence != 0):
+            best_answer = self.find_answer_by_confidence(
+                    answers,
+                    max_confidence
+                    )
         else:
-            best_answer = self.main_bot_fallback()
+            best_answer = main_bot_fallback()
+
         return best_answer
 
     def main_bot_fallback(self):

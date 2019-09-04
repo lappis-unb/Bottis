@@ -449,4 +449,3 @@ actions:
   - utter_risada
 
   - action_test
-  - action_fallback
