@@ -30,6 +30,8 @@ services:
     volumes:
       - notebook_models:/notebook_models
     command: sh -c "cp -r /src_models/* /notebook_models"
+    env_file:
+      - ./docker/bot-rocketchat.env
 
   # ================================= Bot =====================================
   bot:
@@ -42,6 +44,10 @@ services:
     command: make run-console
     depends_on:
       - actions
+      - rabbitmq
+      - tais
+      - lappisudo
+      - union_server
     env_file:
       - docker/bot-rocketchat.env
     ports:
@@ -51,17 +57,17 @@ services:
       - ./scripts:/scripts
       - ./policies:/bot/policies/
 
-  tais:
-    image: lappis/bot:latest
-    container_name: tais
-    restart: unless-stopped
-    command: make run-api
+  # tais:
+  #   image: lappis/bot:latest
+  #   container_name: tais
+  #   restart: unless-stopped
+  #   command: make run-api
 
-  lappisudo:
-    image: lappis/bot:lappisudo
-    container_name: tais
-    restart: unless-stopped
-    command: make run-api
+  # lappisudo:
+  #   image: lappis/bot:lappisudo
+  #   container_name: tais
+  #   restart: unless-stopped
+  #   command: make run-api
 
   defensoria:
     image: lappis/bot:defensoria
@@ -108,7 +114,7 @@ services:
     image: rabbitmq:3-management
     restart: unless-stopped
     volumes:
-      - ./data/rabbitmq:/var/lib/rabbitmq
+      - rabbit_data:/var/lib/rabbitmq
     ports:
       - 15672:15672
     environment:
@@ -228,6 +234,7 @@ services:
 
 volumes:
   notebook_models:
+  rabbit_data:
   esbackup:
   esdata:
     driver: local
