@@ -33,6 +33,7 @@ intents:
   - risada
 
   - action_test
+  - action_custom_response
 
 entities:
   - religiao
@@ -449,3 +450,4 @@ actions:
   - utter_risada
 
   - action_test
+  - action_custom_response
