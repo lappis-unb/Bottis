@@ -87,6 +87,7 @@ class BottisPolicy(Policy):
         after seeing the tracker.
         Returns the list of probabilities for the next actions"""
         if not self.connected:
+            # TODO: connection seems to expire, if expired we should set connected to false again. 
             self.connect_to_rabbit()
 
         result = [0.0] * domain.num_actions
