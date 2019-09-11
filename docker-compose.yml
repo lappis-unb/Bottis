@@ -22,6 +22,7 @@ services:
 
   # =============================== Coach =================================  
   coach:
+    image: lappis/coach:boilerplate
     container_name: coach
     image: lappis/bottis:coach
     build:
@@ -29,10 +30,14 @@ services:
       dockerfile: ./docker/coach.Dockerfile
     volumes:
       - notebook_models:/notebook_models
+    environment:
+      - VALIDATION_SPLIT=0.2
+      - AUGMENTATION_FACTOR=50
     command: sh -c "cp -r /src_models/* /notebook_models"
     env_file:
       - ./docker/bot-rocketchat.env
-
+    ports:
+      - 80:80
   # ================================= Bot =====================================
   bot:
     image: lappis/bot:boilerplate
@@ -48,6 +53,7 @@ services:
       - tais
       - lappisudo
       - union_server
+      - coach
     env_file:
       - docker/bot-rocketchat.env
     ports:

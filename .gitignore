@@ -203,3 +203,4 @@ models/dialogue/
 models/nlu/current/
 
 \.vscode/
+models.tar.gz
