@@ -5,6 +5,7 @@ import logging
 import os
 import uuid
 import pika
+import sys
 from tqdm import tqdm
 from typing import Optional, Any, Dict, List, Text
 from rasa_core import utils
@@ -37,28 +38,14 @@ class BottisPolicy(Policy):
         self.priority = priority
         super(BottisPolicy, self).__init__(featurizer, priority)
 
-        username = os.getenv('RABBITMQ_DEFAULT_USER')
-        password = os.getenv('RABBITMQ_DEFAULT_PASS')
-        broker_url = os.getenv('BROKER_URL')
-
-        self.bot_name = os.getenv('BOT_NAME')
-
-        credentials = pika.PlainCredentials(username, password)
-
-        self.connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host=broker_url,
-                                      credentials=credentials)
-        )
-
-        self.channel = self.connection.channel()
-
-        result = self.channel.queue_declare(queue='', exclusive=True)
-        self.callback_queue = result.method.queue
-
-        self.channel.basic_consume(
-            queue=self.callback_queue,
-            on_message_callback=self.on_response)
-
+        # Flag to verify if rabbitmq is connected or needs to be initialized
+        self.connected = False
+    
+    def on_response(self, ch, method, props, body):
+        if self.corr_id == props.correlation_id:
+            self.response = body
+            ch.basic_ack(delivery_tag = method.delivery_tag)
+    
     def train(self,
               training_trackers: List[DialogueStateTracker],
               domain: Domain,
@@ -99,6 +86,9 @@ class BottisPolicy(Policy):
         """Predicts the next action the bot should take
         after seeing the tracker.
         Returns the list of probabilities for the next actions"""
+        if not self.connected:
+            self.connect_to_rabbit()
+
         result = [0.0] * domain.num_actions
         intent = tracker.latest_message.intent
         if tracker.latest_action_name == self.custom_response_action_name:
@@ -110,14 +100,8 @@ class BottisPolicy(Policy):
 
             text = tracker.latest_message.text or ''
 
-            # TODO: Inserção das API's sem ser hardcode
-            # bots = ["localhost:5006", 'localhost:5007']
-
-            # TODO: Paralelizar o envio das mensagens para as APIs cadastradas
-            # TODO: Configurar os dados que recebemos do tracker em uma struct separada
             answer = self.call(text)
 
-            # TODO: Continuar com o Fallback padrão quando nenhum bot tem confiança suficiente
             logger.info("\n\n -- Answer Selected -- ")
             logger.info("Bot: " + answer["bot"])
             logger.info("Confidence: " + str(answer["intent_confidence"]))
@@ -146,8 +130,34 @@ class BottisPolicy(Policy):
         utils.create_dir_for_file(config_file)
         utils.dump_obj_as_json_to_file(config_file, meta)
 
+    def connect_to_rabbit(self):
+        username = os.getenv('RABBITMQ_DEFAULT_USER')
+        password = os.getenv('RABBITMQ_DEFAULT_PASS')
+        broker_url = os.getenv('BROKER_URL')
+
+        self.bot_name = os.getenv('BOT_NAME')
+
+        credentials = pika.PlainCredentials(username, password)
+
+        self.connection = pika.BlockingConnection(
+            pika.ConnectionParameters(host=broker_url,
+                                      credentials=credentials)
+        )
+
+        self.channel = self.connection.channel()
+
+        result = self.channel.queue_declare(queue='', exclusive=True)
+        self.callback_queue = result.method.queue
+
+        self.channel.basic_consume(
+            queue=self.callback_queue,
+            on_message_callback=self.on_response)
+    
+        self.connected = True
+
     @classmethod
     def load(cls, path: Text) -> 'BottisPolicy':
+
         meta = {}
         if os.path.exists(path):
             meta_path = os.path.join(path, "bottis_policy.json")
