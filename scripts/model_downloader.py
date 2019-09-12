@@ -5,11 +5,11 @@ import hashlib
 import time
 
 
-MODEL_FOLDER = "/models" 
+MODEL_FOLDER = "/models"
 MODEL_FILENAME = "models.tar.gz"
-MODEL_HOST = os.getenv('COACH_URL', 'coach')
+MODEL_HOST = os.getenv("COACH_URL", "coach")
 VERSION_URL = "http://" + MODEL_HOST + "/version"
-FILE_URL = 'http://' + MODEL_HOST + '/' + MODEL_FILENAME
+FILE_URL = "http://" + MODEL_HOST + "/" + MODEL_FILENAME
 
 
 def try_connect_coach():
@@ -17,11 +17,11 @@ def try_connect_coach():
         if get_version():
             print("Coach is available. Continuing config...")
             return
-        print('Coach is unavailable. Retrying in 1 second')
+        print("Coach is unavailable. Retrying in 1 second")
         time.sleep(1)
 
-    print('Maximum number of attempts connecting to coach')
-    raise RuntimeError('could not connect to coach')
+    print("Maximum number of attempts connecting to coach")
+    raise RuntimeError("could not connect to coach")
 
 
 def get_version():
@@ -45,13 +45,13 @@ def uncompress_models(filename):
     os.system("mv src_models " + MODEL_FOLDER)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     try_connect_coach()
-    
+
     if os.path.isfile(MODEL_FILENAME) == True:
         print("file already exist")
-        r = requests.get(url = VERSION_URL)
+        r = requests.get(url=VERSION_URL)
         file_hash = md5(MODEL_FILENAME)
         if r.text != file_hash:
             print("new version model file")

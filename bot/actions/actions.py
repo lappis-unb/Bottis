@@ -12,12 +12,13 @@ class ActionTest(Action):
         except ValueError:
             dispatcher.utter_message(ValueError)
 
+
 class ActionCustomResponse(Action):
     def name(self):
         return "action_custom_response"
 
     def run(self, dispatcher, tracker, domain):
-        messages = tracker.get_slot('bot_answers')
+        messages = tracker.get_slot("bot_answers")
 
         for message in messages:
             dispatcher.utter_message(message)
