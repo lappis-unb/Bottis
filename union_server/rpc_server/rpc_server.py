@@ -3,6 +3,7 @@ import pika
 import yaml
 import os
 import json
+import time
 from api_helper import get_request, post_request
 
 import logging
@@ -196,6 +197,18 @@ class RPCServer():
         self.channel.start_consuming()
 
 
+def connect_rabbit():
+    for _ in range(100):
+        try:
+            rpc_server = RPCServer()
+            logger.info("RabbitMQ is available. Continuing config...")
+            return rpc_server
+        except pika.exceptions.AMQPConnectionError:
+            logger.warning('RabbitMQ is unavailable. Retrying in 1 second')
+            time.sleep(1)
+    return None
+
+
 if __name__ == '__main__':
-    rpc_server = RPCServer()
+    rpc_server = connect_rabbit()
     rpc_server.start_server()
