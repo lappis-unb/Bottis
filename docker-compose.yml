@@ -28,12 +28,9 @@ services:
     build:
       context: .
       dockerfile: ./docker/coach.Dockerfile
-    volumes:
-      - notebook_models:/notebook_models
     environment:
       - VALIDATION_SPLIT=0.2
       - AUGMENTATION_FACTOR=50
-    command: sh -c "cp -r /src_models/* /notebook_models"
     env_file:
       - ./docker/bot-rocketchat.env
     ports:
@@ -58,22 +55,6 @@ services:
       - docker/bot-rocketchat.env
     ports:
       - 5002:5002
-    volumes:
-      - ./bot:/bot
-      - ./scripts:/scripts
-      - ./policies:/bot/policies/
-
-  # tais:
-  #   image: lappis/bot:latest
-  #   container_name: tais
-  #   restart: unless-stopped
-  #   command: make run-api
-
-  # lappisudo:
-  #   image: lappis/bot:lappisudo
-  #   container_name: tais
-  #   restart: unless-stopped
-  #   command: make run-api
 
   defensoria:
     image: lappis/bot:defensoria

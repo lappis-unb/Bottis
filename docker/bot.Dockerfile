@@ -1,6 +1,7 @@
 FROM lappis/bottis:requirements
 
 COPY ./bot /bot
+COPY ./policies /policies/
 COPY ./scripts /scripts
 
 WORKDIR /bot
