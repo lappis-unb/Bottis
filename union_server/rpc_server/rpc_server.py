@@ -56,7 +56,7 @@ class RPCServer():
                     max_confidence
                     )
         else:
-            best_answer = main_bot_fallback()
+            best_answer = self.main_bot_fallback()
 
         return best_answer
 
