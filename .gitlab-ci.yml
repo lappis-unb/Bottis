@@ -22,7 +22,7 @@ test style:
   script:
     - pip -V
     - python -V
-    - pip install -r requirements.txt
+    - pip install flake8
     - flake8 --exclude venv
 
 
