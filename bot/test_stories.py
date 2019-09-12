@@ -92,12 +92,14 @@ def process_failed_story(failed_story):
 
 
 def run_evaluation(
-    file_to_evaluate, fail_on_prediction_errors=False, max_stories=None, use_e2e=False
+    file_to_evaluate, fail_on_prediction_errors=False, max_stories=None,
+    use_e2e=False
 ):
 
     _endpoints = AvailableEndpoints.read_endpoints(None)
     _interpreter = NaturalLanguageInterpreter.create(NLU_DIR)
-    _agent = load_agent(CORE_DIR, interpreter=_interpreter, endpoints=_endpoints)
+    _agent = load_agent(CORE_DIR, interpreter=_interpreter,
+                        endpoints=_endpoints)
 
     completed_trackers = _generate_trackers(
         file_to_evaluate, _agent, max_stories, use_e2e
@@ -128,7 +130,8 @@ def run_evaluation(
     else:
         for failed_story in _failed_stories:
             process_failed_story(failed_story.export_stories())
-            story_name = re.search("## (.*)", failed_story.export_stories()).group(1)
+            story_name = re.search(
+                "## (.*)", failed_story.export_stories()).group(1)
             all_failed_stories.append(file_to_evaluate + " - " + story_name)
 
     utils.print_color("#" * 80 + "\n", BOLD_COLOR)
@@ -139,7 +142,8 @@ def print_evaluation_statistics():
 
     if len(all_failed_stories) == 0:
         utils.print_color(
-            "\n" + "CONGRATULATIONS! ALL THE EVALUATED " "STORIES HAVE PASSED!",
+            "\n" + "CONGRATULATIONS! ALL THE EVALUATED "
+            "STORIES HAVE PASSED!",
             PASSED_COLOR,
         )
     else:

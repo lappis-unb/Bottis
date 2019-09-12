@@ -38,7 +38,8 @@ def run(core_dir, nlu_dir):
         server_url=configs["server_url"],
     )
 
-    _tracker_store = InMemoryTrackerStore(domain=None, event_broker=pika_broker)
+    _tracker_store = InMemoryTrackerStore(
+        domain=None, event_broker=pika_broker)
 
     _endpoints = AvailableEndpoints.read_endpoints(None)
     _interpreter = NaturalLanguageInterpreter.create(nlu_dir)

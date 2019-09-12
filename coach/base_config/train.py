@@ -1,6 +1,5 @@
 import logging
 import os
-import sys
 from rasa_core import utils, train
 
 logger = logging.getLogger(__name__)

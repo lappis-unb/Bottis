@@ -122,7 +122,8 @@ class CustomFallbackPolicy(Policy):
                 "NLU confidence {} is lower "
                 "than NLU threshold {}. "
                 "Predicting fallback action: {}"
-                "".format(nlu_confidence, self.nlu_threshold, self.fallback_action_name)
+                "".format(nlu_confidence, self.nlu_threshold,
+                          self.fallback_action_name)
             )
             # we set this to 1.1 to make sure fallback overrides
             # the memoization policy
@@ -134,8 +135,10 @@ class CustomFallbackPolicy(Policy):
             # the fallback action will be executed.
             result = self.fallback_scores(domain, self.core_threshold)
             try:
-                if tracker.latest_action_name != nlu_data["intent"].get("name"):
-                    if nlu_data["intent"].get("confidence") > self.core_threshold:
+                intent_name = nlu_data["intent"].get("name")
+                intent_confidence = nlu_data["intent"].get("confidence")
+                if tracker.latest_action_name != intent_name:
+                    if intent_confidence > self.core_threshold:
                         idx = domain.index_for_action(
                             "utter_{}".format(nlu_data["intent"].get("name"))
                         )

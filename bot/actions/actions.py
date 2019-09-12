@@ -1,5 +1,4 @@
 from rasa_core_sdk import Action
-from rasa_core.events import SlotSet
 
 
 class ActionTest(Action):

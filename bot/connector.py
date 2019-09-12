@@ -32,9 +32,12 @@ class RocketChatBot(OutputChannel):
 
     def login(self):
         while not self.logged_in:
-            logger.info("Trying to login to rocketchat as {}".format(self.user))
+            logger.info(
+                "Trying to login to rocketchat as {}".format(self.user))
             self.connector.login(
-                user=self.user, password=self.password, callback=self._login_callback
+                user=self.user,
+                password=self.password,
+                callback=self._login_callback
             )
             time.sleep(10)
 
@@ -57,7 +60,8 @@ class RocketChatBot(OutputChannel):
 
     def send_text_message(self, recipient_id, message):
         if recipient_id not in self.users:
-            self.users[recipient_id] = RocketchatHandleMessages(recipient_id, self)
+            self.users[recipient_id] = RocketchatHandleMessages(
+                recipient_id, self)
 
         for message_part in message.split("\n\n"):
             self.users[recipient_id].add_message(message_part)
@@ -88,12 +92,15 @@ class RocketChatInput(InputChannel):
         self.password = password
         self.server_url = server_url
 
-        self.output_channel = RocketChatBot(self.user, self.password, self.server_url)
+        self.output_channel = RocketChatBot(
+            self.user, self.password, self.server_url)
 
     def send_message(self, text, sender_name, recipient_id, on_new_message):
         if sender_name != self.user:
             user_msg = UserMessage(
-                text, self.output_channel, recipient_id, input_channel=self.name()
+                text, self.output_channel,
+                recipient_id,
+                input_channel=self.name()
             )
             on_new_message(user_msg)
 
@@ -120,7 +127,8 @@ class RocketChatInput(InputChannel):
                     sender_name = messages_list[0].get("username", None)
                     recipient_id = output.get("_id")
 
-                self.send_message(text, sender_name, recipient_id, on_new_message)
+                self.send_message(text, sender_name,
+                                  recipient_id, on_new_message)
 
             return make_response()
 
@@ -168,7 +176,8 @@ class RocketchatHandleMessages:
     def add_message(self, message):
         if not self.is_typing:
             self.manage_is_typing_message(
-                "activate typing for {}".format(self.rid), True, self.activate_typing
+                "activate typing for {}".format(
+                    self.rid), True, self.activate_typing
             )
 
         wait_time = int(os.getenv("MIN_TYPING_TIME", 1))
@@ -180,7 +189,8 @@ class RocketchatHandleMessages:
 
             words_per_sec = int(os.getenv("WORDS_PER_SECOND_TYPING", 5))
             wait_time = (
-                min(max_time, max(1, n_words // words_per_sec)) + last_msg["time"]
+                min(max_time, max(1, n_words // words_per_sec)) +
+                last_msg["time"]
             )
 
         threading.Timer(wait_time, self.send_message).start()

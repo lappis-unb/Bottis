@@ -51,7 +51,8 @@ class RPCServer:
             max_confidence = 0
 
         if valid_answers and max_confidence != 0:
-            best_answer = self.find_answer_by_confidence(answers, max_confidence)
+            best_answer = self.find_answer_by_confidence(
+                answers, max_confidence)
         else:
             best_answer = self.main_bot_fallback()
 
@@ -66,7 +67,8 @@ class RPCServer:
             "policy_name": "Fallback",
             "intent_name": "fallback",
             "messages": [
-                "Desculpe, ainda não sei falar sobre isso ou talvez não consegui entender direito.",
+                "Desculpe, ainda não sei falar sobre isso ou talvez não\
+                consegui entender direito.",
                 "Você pode perguntar de novo de outro jeito?",
             ],
         }
@@ -86,7 +88,8 @@ class RPCServer:
         payload = {"query": message}
         payload = json.dumps(payload)
 
-        r = get_request(payload, "http://" + bot_url + "/conversations/default/tracker")
+        r = get_request(payload, "http://" + bot_url +
+                        "/conversations/default/tracker")
 
         answer_info = {}
 
@@ -94,12 +97,14 @@ class RPCServer:
         for event in iterator:
             if "event" in event and "user" == event["event"]:
                 if message == event["text"]:
-                    answer_info["intent_confidence"] = event["parse_data"]["intent"][
-                        "confidence"
-                    ]
-                    answer_info["intent_name"] = event["parse_data"]["intent"]["name"]
+                    confidence = event["parse_data"]["intent"]["confidence"]
+                    intent_name = event["parse_data"]["intent"]["name"]
 
-                    # always after a user event, there is a action event with policy info.
+                    answer_info["intent_confidence"] = confidence
+                    answer_info["intent_name"] = intent_name
+
+                    # always after a user event,
+                    # there is a action event with policy info.
                     answer_info["utter_confidence"], answer_info[
                         "policy_name"
                     ] = self.get_policy_info(iterator)
@@ -173,7 +178,8 @@ class RPCServer:
         ch.basic_publish(
             exchange="",
             routing_key=props.reply_to,
-            properties=pika.BasicProperties(correlation_id=props.correlation_id),
+            properties=pika.BasicProperties(
+                correlation_id=props.correlation_id),
             body=json.dumps(answer),
         )
         ch.basic_ack(delivery_tag=method.delivery_tag)

@@ -26,9 +26,9 @@ def try_connect_coach():
 
 def get_version():
     try:
-        r = requests.get(url=VERSION_URL)
+        requests.get(url=VERSION_URL)
         return True
-    except:
+    except Exception:
         return False
 
 
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     try_connect_coach()
 
-    if os.path.isfile(MODEL_FILENAME) == True:
+    if os.path.isfile(MODEL_FILENAME):
         print("file already exist")
         r = requests.get(url=VERSION_URL)
         file_hash = md5(MODEL_FILENAME)

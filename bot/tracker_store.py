@@ -35,12 +35,20 @@ def gen_id(timestamp):
 
 
 class ElasticTrackerStore(InMemoryTrackerStore):
-    def __init__(self, domain, user=None, password=None, scheme="http", scheme_port=80):
+    def __init__(self,
+                 domain,
+                 user=None,
+                 password=None,
+                 scheme="http",
+                 scheme_port=80
+                 ):
         if user is None:
             self.es = Elasticsearch([domain])
         else:
             self.es = Elasticsearch(
-                ["{}://{}:{}@{}:{}".format(scheme, user, password, domain, scheme_port)]
+                ["{}://{}:{}@{}:{}".format(scheme,
+                                           user, password, domain, scheme_port)
+                 ]
             )
 
         super(ElasticTrackerStore, self).__init__(domain)
@@ -66,7 +74,9 @@ class ElasticTrackerStore(InMemoryTrackerStore):
             .replace(")", "")
             .split(" ")
         ):
-            if word.lower() not in stopwords.words("portuguese") and len(word) > 1:
+
+            if (word.lower() not in stopwords.words("portuguese")
+                    and len(word) > 1):
                 tags.append(word)
 
         message = {
@@ -110,10 +120,8 @@ class ElasticTrackerStore(InMemoryTrackerStore):
         time_offset = 0
         for utter in utters[::-1]:
             time_offset += 100
-
-            ts = (
-                datetime.datetime.now() + datetime.timedelta(milliseconds=time_offset)
-            ).timestamp()
+            offset = datetime.timedelta(milliseconds=time_offset)
+            ts = (datetime.datetime.now() + offset).timestamp()
 
             timestamp = datetime.datetime.strftime(
                 datetime.datetime.fromtimestamp(ts), "%Y/%m/%d %H:%M:%S"
@@ -161,7 +169,8 @@ class ElasticTrackerStore(InMemoryTrackerStore):
                 self.save_bot_message(tracker)
             except Exception as ex:
                 logger.error(
-                    "Could not track messages " "for user {}".format(tracker.sender_id)
+                    "Could not track messages " "for user {}".format(
+                        tracker.sender_id)
                 )
                 logger.error(str(ex))
 

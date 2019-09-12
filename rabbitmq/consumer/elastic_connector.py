@@ -39,12 +39,20 @@ def get_timestamp():
 
 
 class ElasticConnector:
-    def __init__(self, domain, user=None, password=None, scheme="http", scheme_port=80):
+    def __init__(self,
+                 domain,
+                 user=None,
+                 password=None,
+                 scheme="http",
+                 scheme_port=80
+                 ):
         if user is None:
             self.es = Elasticsearch([domain])
         else:
             self.es = Elasticsearch(
-                ["{}://{}:{}@{}:{}".format(scheme, user, password, domain, scheme_port)]
+                ["{}://{}:{}@{}:{}".format(scheme,
+                                           user, password, domain, scheme_port)
+                 ]
             )
 
         self.previous_action = None
@@ -84,9 +92,11 @@ class ElasticConnector:
             .replace(")", "")
             .split(" ")
         ):
-            if word.lower() not in stopwords.words("portuguese") and len(word) > 1:
-                tags.append(word)
 
+            if (word.lower() not in stopwords.words("portuguese")
+                    and len(word) > 1):
+                tags.append(word)
+        confidence = user_message["parse_data"]["intent"]["confidence"]
         message = {
             "environment": ENVIRONMENT_NAME,
             "version": BOT_VERSION,
@@ -97,7 +107,7 @@ class ElasticConnector:
             "tags": tags,
             "entities": user_message["parse_data"]["entities"],
             "intent_name": user_message["parse_data"]["intent"]["name"],
-            "intent_confidence": (user_message["parse_data"]["intent"]["confidence"]),
+            "intent_confidence": confidence,
             "utter_name": "",
             "is_fallback": False,
         }

@@ -1,17 +1,13 @@
-import zlib
-import base64
 import json
 import logging
 import os
 import uuid
 import pika
-import sys
-from tqdm import tqdm
 from typing import Optional, Any, Dict, List, Text
 from rasa_core import utils
 from rasa_core.domain import Domain
-from rasa_core.events import ActionExecuted, SlotSet
-from rasa_core.featurizers import TrackerFeaturizer, MaxHistoryTrackerFeaturizer
+from rasa_core.events import SlotSet
+from rasa_core.featurizers import TrackerFeaturizer
 from rasa_core.policies.policy import Policy
 from rasa_core.trackers import DialogueStateTracker
 from rasa_core.actions.action import ACTION_LISTEN_NAME
@@ -85,7 +81,8 @@ class BottisPolicy(Policy):
         after seeing the tracker.
         Returns the list of probabilities for the next actions"""
         if not self.connected:
-            # TODO: connection seems to expire, if expired we should set connected to false again.
+            # TODO: connection seems to expire,
+            # if expired we should set connected to false again.
             self.connect_to_rabbit()
 
         result = [0.0] * domain.num_actions
@@ -95,7 +92,8 @@ class BottisPolicy(Policy):
             idx = domain.index_for_action(ACTION_LISTEN_NAME)
             result[idx] = 1.0
         elif (
-            intent.get("name") is None and intent.get("confidence") < self.nlu_threshold
+            intent.get("name") is None and intent.get(
+                "confidence") < self.nlu_threshold
         ):
 
             text = tracker.latest_message.text or ""
