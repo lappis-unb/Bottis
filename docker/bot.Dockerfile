@@ -1,12 +1,9 @@
-FROM lappis/coach:boilerplate as coach
-FROM lappis/botrequirements:boilerplate
-
+FROM lappis/bottis:requirements
 
 COPY ./bot /bot
+COPY ./policies /policies/
 COPY ./scripts /scripts
-COPY --from=coach /src_models/ /models/
 
-WORKDIR /bot
-
+RUN cp /bot/Makefile /Makefile
 
 RUN find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf

@@ -22,27 +22,27 @@ test style:
   script:
     - pip -V
     - python -V
-    - pip install -r requirements.txt
+    - pip install flake8
     - flake8 --exclude venv
 
 
 #############################################################
 ############### TEST STORIES ################################
 #############################################################
-test stories:
-  stage: test stories
-  image: docker
-  tags:
-    - docker
-  services:
-    - docker:dind
-  script:
-    - docker build -f docker/coach.Dockerfile -t $COACH_TEMP_IMAGE .
-    - docker build -f docker/bot.Dockerfile -t $BOT_TEMP_IMAGE .
-    - docker run --rm $BOT_TEMP_IMAGE make test-stories
-    - docker login -u "gitlab-ci-token" -p "$CI_JOB_TOKEN" $CI_REGISTRY # logs in to gitlab registry
-    - docker push $COACH_TEMP_IMAGE
-    - docker push $BOT_TEMP_IMAGE
+# test stories:
+#   stage: test stories
+#   image: docker
+#   tags:
+#     - docker
+#   services:
+#     - docker:dind
+#   script:
+#     - docker build -f docker/coach.Dockerfile -t $COACH_TEMP_IMAGE .
+#     - docker build -f docker/bot.Dockerfile -t $BOT_TEMP_IMAGE .
+#     - docker run --rm $BOT_TEMP_IMAGE make test-stories
+#     - docker login -u "gitlab-ci-token" -p "$CI_JOB_TOKEN" $CI_REGISTRY # logs in to gitlab registry
+#     - docker push $COACH_TEMP_IMAGE
+#     - docker push $BOT_TEMP_IMAGE
 
 
 #############################################################

@@ -7,12 +7,18 @@ policies:
       - name: FullDialogueTrackerFeaturizer
         state_featurizer:
           - name: LabelTokenizerSingleStateFeaturizer
+  - name: MemoizationPolicy
+    priority: 3
+    max_history: 2
+  - name: "policies.bottis_policy.BottisPolicy"
+    priority: 2
+    custom_response_action_name: "action_custom_response"
+    nlu_threshold: 1.0
+    core_threshold: 1.0
   - name: FallbackPolicy
-    nlu_threshold: 0.6
-    core_threshold: 0.6
+    nlu_threshold: 0.5
+    core_threshold: 0.5
     priority: 1
   - name: MemoizationPolicy
     priority: 2
     max_history: 2
-    
-

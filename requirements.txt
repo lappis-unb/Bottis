@@ -5,6 +5,6 @@ sklearn-crfsuite==0.3.6
 nltk>=3.4.5
 rocketchat-py-sdk==0.0.8
 elasticsearch==6.3.1
-flake8==3.7.8
-
-
+wget==3.2
+requests==2.22.0
+pika==1.1.0

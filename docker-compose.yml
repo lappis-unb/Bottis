@@ -22,12 +22,19 @@ services:
 
   # =============================== Coach =================================  
   coach:
+    image: lappis/coach:boilerplate
     container_name: coach
-    image: lappis/coach:bottis
-    volumes:
-      - notebook_models:/notebook_models
-    command: sh -c "cp -r /src_models/* /notebook_models"
-
+    image: lappis/bottis:coach
+    build:
+      context: .
+      dockerfile: ./docker/coach.Dockerfile
+    environment:
+      - VALIDATION_SPLIT=0.2
+      - AUGMENTATION_FACTOR=50
+    env_file:
+      - ./docker/bot-rocketchat.env
+    ports:
+      - 80:80
   # ================================= Bot =====================================
   bot:
     image: lappis/bot:boilerplate
@@ -36,16 +43,30 @@ services:
       context: .
       dockerfile: ./docker/bot.Dockerfile
     restart: unless-stopped
-    command: make run-rocketchat 
+    command: make run-console
+    depends_on:
+      - actions
+      - rabbitmq
+      - tais
+      - lappisudo
+      - union_server
+      - coach
     env_file:
       - docker/bot-rocketchat.env
     ports:
       - 5002:5002
-    depends_on:
-      - actions
-    volumes:
-      - ./bot:/bot
-      - ./scripts:/scripts
+
+  defensoria:
+    image: lappis/bot:defensoria
+    container_name: tais
+    restart: unless-stopped
+    command: make run-api
+
+  aix:
+    image: lappis/bot:aix
+    container_name: tais
+    restart: unless-stopped
+    command: make run-api
 
   # =============================== Analytics =================================
   elasticsearch:
@@ -80,7 +101,7 @@ services:
     image: rabbitmq:3-management
     restart: unless-stopped
     volumes:
-      - ./data/rabbitmq:/var/lib/rabbitmq
+      - rabbit_data:/var/lib/rabbitmq
     ports:
       - 15672:15672
     environment:
@@ -135,6 +156,12 @@ services:
       dockerfile: ./docker/actions.Dockerfile
     ports:
       - 5055:5055
+    environment:
+      - BOTS=localhost:5006;localhost:5007
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+      - BROKER_URL=rabbitmq
+      - BOT_NAME=boilerplate
     volumes:
       - ./bot/actions:/bot/actions
       - ./bot/Makefile:/bot/Makefile
@@ -156,9 +183,45 @@ services:
       - 8888:8888
     depends_on:
       - coach
-  
+
+  tais:
+    image: lappis/bot:latest
+    restart: unless-stopped
+    command: make run-api
+    env_file:
+      - docker/bot-rocketchat.env
+    ports:
+      - 5006:5005
+      - 5003:5002
+
+  union_server:
+    container_name: rpc_server
+    build:
+      context: .
+      dockerfile: ./docker/union_server/Dockerfile
+    volumes:
+      - ./union_server:/opt
+    environment:
+      - BROKER_URL=rabbitmq
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    depends_on:
+      - rabbitmq
+    command: sh -c "python3 rpc_server.py"
+
+  lappisudo:
+    image: lappis/bot:lappisudo
+    command: make run-api
+    ports:
+      - 5007:5005
+      - 5004:5002
+    volumes:
+      - ./bot:/bot
+      - ./scripts:/scripts
+
 volumes:
   notebook_models:
+  rabbit_data:
   esbackup:
   esdata:
     driver: local
