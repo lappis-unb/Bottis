@@ -1,6 +1,6 @@
-import logging
 import os
-
+import sys
+import logging
 from rasa_core.utils import configure_colored_logging, AvailableEndpoints
 from rasa_core.run import start_server, load_agent
 from rasa_core.interpreter import NaturalLanguageInterpreter
@@ -18,6 +18,10 @@ password = os.getenv("BROKER_PASSWORD", "")
 queue = os.getenv("QUEUE_NAME", "")
 
 ENABLE_ANALYTICS = os.getenv("ENABLE_ANALYTICS", "False").lower() == "true"
+
+# WorkAround to import /policies as a module and be able to run the bot
+homedir = os.path.expanduser("/")
+sys.path.append(homedir)
 
 
 def run(core_dir, nlu_dir):

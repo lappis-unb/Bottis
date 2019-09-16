@@ -1,7 +1,7 @@
 run-rocketchat:
 	make config-bot
 	make download-model
-	python3 run-rocketchat.py
+	python3 /bot/run-rocketchat.py
 
 run-telegram:
 	make download-model
