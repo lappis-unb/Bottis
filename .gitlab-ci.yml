@@ -79,8 +79,8 @@ build coach:
   script:
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD # Logs in to dockerhub
     - docker pull $COACH_TEMP_IMAGE
-    - docker tag $COACH_TEMP_IMAGE $COACH_IMAGE:latest
-    - docker push $COACH_IMAGE:latest
+    - docker tag $COACH_TEMP_IMAGE $COACH_IMAGE:bottis
+    - docker push $COACH_IMAGE:bottis
   only:
     - master
   environment: homolog
@@ -99,8 +99,8 @@ build bot:
   script:
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD # Logs in to dockerhub
     - docker pull $BOT_TEMP_IMAGE
-    - docker tag $BOT_TEMP_IMAGE $BOT_IMAGE:latest
-    - docker push $BOT_IMAGE:latest
+    - docker tag $BOT_TEMP_IMAGE $BOT_IMAGE:bottis
+    - docker push $BOT_IMAGE:bottis
   only:
     - master
   environment: homolog
