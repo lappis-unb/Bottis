@@ -15,6 +15,9 @@ from rasa_core.actions.action import ACTION_LISTEN_NAME
 
 logger = logging.getLogger(__name__)
 
+# Bottis network conversation id defined in rpc_server.py
+CONVERSATION_ID = "bottis_network"
+
 
 class BottisPolicy(Policy):
     def __init__(
@@ -91,6 +94,13 @@ class BottisPolicy(Policy):
             result = [0.0] * domain.num_actions
             idx = domain.index_for_action(ACTION_LISTEN_NAME)
             result[idx] = 1.0
+        elif(tracker.sender_id == CONVERSATION_ID):
+            """
+            Bottis policy shouldn't be activated when
+            the conversation belongs to another bot.
+            This causes a loop where every bot asks every bot until timeout.
+            """
+            pass
         elif (
             intent.get("name") is None and intent.get(
                 "confidence") < self.nlu_threshold

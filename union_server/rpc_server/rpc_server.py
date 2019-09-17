@@ -10,6 +10,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+"""ID to be used on the bottis policy
+this separate real conversations from bots talking to each other.
+"""
+CONVERSATION_ID = "bottis_network"
+
 
 class RPCServer:
     def __init__(self):
@@ -87,9 +92,8 @@ class RPCServer:
     def get_answer_info(self, message, bot_url):
         payload = {"query": message}
         payload = json.dumps(payload)
-
-        r = get_request(payload, "http://" + bot_url +
-                        "/conversations/default/tracker")
+        url = f"http://{bot_url}/conversations/{CONVERSATION_ID}/tracker"
+        r = get_request(payload, url)
 
         answer_info = {}
 
@@ -123,11 +127,8 @@ class RPCServer:
     def send_message(self, text, bot_url):
         payload = {"query": text}
         payload = json.dumps(payload)
-
-        r = post_request(
-            payload, "http://" + bot_url + "/conversations/default/respond"
-        )
-
+        url = f"http://{bot_url}/conversations/{CONVERSATION_ID}/respond"
+        r = post_request(payload, url)
         messages = []
 
         for i in range(0, len(r)):
