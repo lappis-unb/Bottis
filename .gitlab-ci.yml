@@ -1,7 +1,7 @@
 image: python:3.6-slim
 
 variables:
-  REQUIREMENTS_IMAGE: lappis/bottis_requirements
+  REQUIREMENTS_IMAGE: lappis/bottis-requirements
   BOT_IMAGE: lappis/bottis_bot
   COACH_IMAGE: lappis/bottis_coach
   COACH_TEMP_IMAGE: $CI_REGISTRY_IMAGE/ci/coach:$CI_COMMIT_SHORT_SHA

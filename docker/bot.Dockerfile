@@ -1,4 +1,4 @@
-FROM lappis/bottis_requirements:latest
+FROM lappis/bottis-requirements:latest
 
 COPY ./bot /bot
 COPY ./policies /policies/
