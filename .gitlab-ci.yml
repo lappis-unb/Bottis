@@ -1,8 +1,9 @@
 image: python:3.6-slim
 
 variables:
-  BOT_IMAGE: $DOCKERHUB_USER/bot
-  COACH_IMAGE: $DOCKERHUB_USER/coach
+  REQUIREMENTS_IMAGE: lappis/bottis_requirements
+  BOT_IMAGE: lappis/bottis_bot
+  COACH_IMAGE: lappis/bottis_coach
   COACH_TEMP_IMAGE: $CI_REGISTRY_IMAGE/ci/coach:$CI_COMMIT_SHORT_SHA
   BOT_TEMP_IMAGE: $CI_REGISTRY_IMAGE/ci/bot:$CI_COMMIT_SHORT_SHA
 
@@ -29,20 +30,21 @@ test style:
 #############################################################
 ############### TEST STORIES ################################
 #############################################################
-# test stories:
-#   stage: test stories
-#   image: docker
-#   tags:
-#     - docker
-#   services:
-#     - docker:dind
-#   script:
-#     - docker build -f docker/coach.Dockerfile -t $COACH_TEMP_IMAGE .
-#     - docker build -f docker/bot.Dockerfile -t $BOT_TEMP_IMAGE .
-#     - docker run --rm $BOT_TEMP_IMAGE make test-stories
-#     - docker login -u "gitlab-ci-token" -p "$CI_JOB_TOKEN" $CI_REGISTRY # logs in to gitlab registry
-#     - docker push $COACH_TEMP_IMAGE
-#     - docker push $BOT_TEMP_IMAGE
+test stories:
+  stage: test stories
+  image: docker
+  tags:
+    - docker
+  services:
+    - docker:dind
+  script:
+    - docker build -f docker/coach.Dockerfile -t $COACH_TEMP_IMAGE .
+    - docker build -f docker/bot.Dockerfile -t $BOT_TEMP_IMAGE .
+    # FIXME: Use TEMP_COACH as a service and run the tests 
+    # - docker run --rm $BOT_TEMP_IMAGE make test-stories
+    - docker login -u "gitlab-ci-token" -p "$CI_JOB_TOKEN" $CI_REGISTRY # logs in to gitlab registry
+    - docker push $COACH_TEMP_IMAGE
+    - docker push $BOT_TEMP_IMAGE
 
 
 #############################################################
@@ -57,7 +59,7 @@ build requirements:
     - docker:dind
   script:
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
-    - ./docker/build-base.sh
+    - docker build . -f docker/requirements.Dockerfile -t $REQUIREMENTS_IMAGE
   only:
     refs:
       - master
@@ -79,8 +81,8 @@ build coach:
   script:
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD # Logs in to dockerhub
     - docker pull $COACH_TEMP_IMAGE
-    - docker tag $COACH_TEMP_IMAGE $COACH_IMAGE:bottis
-    - docker push $COACH_IMAGE:bottis
+    - docker tag $COACH_TEMP_IMAGE $COACH_IMAGE:latest
+    - docker push $COACH_IMAGE:latest
   only:
     - master
   environment: homolog
@@ -99,8 +101,8 @@ build bot:
   script:
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD # Logs in to dockerhub
     - docker pull $BOT_TEMP_IMAGE
-    - docker tag $BOT_TEMP_IMAGE $BOT_IMAGE:bottis
-    - docker push $BOT_IMAGE:bottis
+    - docker tag $BOT_TEMP_IMAGE $BOT_IMAGE:latest
+    - docker push $BOT_IMAGE:latest
   only:
     - master
   environment: homolog
