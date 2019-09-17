@@ -1,4 +1,4 @@
-FROM lappis/bottis-requirements:latest
+FROM lappis/bottis_requirements:latest
 
 COPY ./coach /coach
 COPY ./scripts /scripts

@@ -1,6 +1,6 @@
 
 build-requirements:
-	docker build . -f docker/requirements.Dockerfile -t lappis/bottis-requirements:latest
+	docker build . -f docker/requirements.Dockerfile -t lappis/bottis_requirements:latest
 
 build-coach:
 	docker-compose build coach
