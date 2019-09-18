@@ -39,6 +39,7 @@ class BottisPolicy(Policy):
 
         # Flag to verify if rabbitmq is connected or needs to be initialized
         self.connected = False
+        self.should_connect = True
 
     def on_response(self, ch, method, props, body):
         if self.corr_id == props.correlation_id:
@@ -94,7 +95,7 @@ class BottisPolicy(Policy):
             result = [0.0] * domain.num_actions
             idx = domain.index_for_action(ACTION_LISTEN_NAME)
             result[idx] = 1.0
-        elif(tracker.sender_id == CONVERSATION_ID):
+        elif tracker.sender_id == CONVERSATION_ID or not self.should_connect:
             """
             Bottis policy shouldn't be activated when
             the conversation belongs to another bot.
@@ -139,28 +140,37 @@ class BottisPolicy(Policy):
         utils.dump_obj_as_json_to_file(config_file, meta)
 
     def connect_to_rabbit(self):
-        username = os.getenv("RABBITMQ_DEFAULT_USER")
-        password = os.getenv("RABBITMQ_DEFAULT_PASS")
-        broker_url = os.getenv("BROKER_URL")
+        username = os.getenv("RABBITMQ_DEFAULT_USER", None)
+        password = os.getenv("RABBITMQ_DEFAULT_PASS", None)
+        broker_url = os.getenv("BROKER_URL", None)
+        if username and password and broker_url:
+            self.bot_name = os.getenv("BOT_NAME")
 
-        self.bot_name = os.getenv("BOT_NAME")
+            credentials = pika.PlainCredentials(username, password)
 
-        credentials = pika.PlainCredentials(username, password)
+            self.connection = pika.BlockingConnection(
+                pika.ConnectionParameters(
+                    host=broker_url,
+                    credentials=credentials)
+            )
 
-        self.connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host=broker_url, credentials=credentials)
-        )
+            self.channel = self.connection.channel()
 
-        self.channel = self.connection.channel()
+            result = self.channel.queue_declare(queue="", exclusive=True)
+            self.callback_queue = result.method.queue
 
-        result = self.channel.queue_declare(queue="", exclusive=True)
-        self.callback_queue = result.method.queue
+            self.channel.basic_consume(
+                queue=self.callback_queue, on_message_callback=self.on_response
+            )
 
-        self.channel.basic_consume(
-            queue=self.callback_queue, on_message_callback=self.on_response
-        )
-
-        self.connected = True
+            self.connected = True
+        else:
+            """
+                Connection information missing, bot should be running alone
+                or is misconfigured
+            """
+            self.should_connect = False
+            logger.warn("\n\n -- Bot Running alone, bottis-policy disabled -- ")
 
     @classmethod
     def load(cls, path: Text) -> "BottisPolicy":
