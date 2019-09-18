@@ -37,7 +37,7 @@ services:
       - 80:80
   # ================================= Bot =====================================
   bot:
-    image: lappis/bot:boilerplate
+    image: lappis/bottis_bot:latest
     container_name: bot_rocketchat
     build:
       context: .
@@ -55,18 +55,6 @@ services:
       - docker/bot-rocketchat.env
     ports:
       - 5002:5002
-
-  defensoria:
-    image: lappis/bot:defensoria
-    container_name: tais
-    restart: unless-stopped
-    command: make run-api
-
-  aix:
-    image: lappis/bot:aix
-    container_name: tais
-    restart: unless-stopped
-    command: make run-api
 
   # =============================== Analytics =================================
   elasticsearch:
@@ -208,16 +196,23 @@ services:
     depends_on:
       - rabbitmq
     command: sh -c "python3 rpc_server.py"
-
+  # ======================================== Lappisudo ================================= #
   lappisudo:
-    image: lappis/bot:lappisudo
+    image: lappis/bottis_bot:latest
+    restart: unless-stopped
     command: make run-api
-    ports:
-      - 5007:5005
-      - 5004:5002
-    volumes:
-      - ./bot:/bot
-      - ./scripts:/scripts
+    env_file:
+      - docker/lappisudo.env
+    depends_on:
+      - lappisudo_actions
+      - lappisudo_coach
+
+  lappisudo_actions:
+    image: lappis/bottis_actions:lappisudo
+  
+  lappisudo_coach:
+    image: lappis/bottis_coach:lappisudo
+
 
 volumes:
   notebook_models:
